@@ -1,0 +1,560 @@
+{% extends "base.html" %}
+
+{% block title %}Administrator Portal | SkillBridge{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 2.5rem; padding-bottom: 4rem;">
+  
+  <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <span class="badge badge-purple" style="margin-bottom: 0.5rem;">Platform Operations</span>
+      <h1 style="font-size: 2.15rem; font-weight: 800; color: var(--slate-900);">
+        Administrator Management Hub
+      </h1>
+      <p style="color: var(--slate-600); font-size: 0.95rem;">
+        Oversee skill standards, manage demonstration internship opportunities, and curate learning resources.
+      </p>
+    </div>
+
+    <!-- Tab navigation -->
+    <div style="display: flex; gap: 0.5rem; background: var(--slate-100); padding: 0.35rem; border-radius: var(--radius-md);">
+      <button class="btn btn-primary btn-sm active" data-admin-tab="paneRoles">
+        Job Roles ({{ roles|length }})
+      </button>
+      <button class="btn btn-secondary btn-sm" data-admin-tab="paneInternships">
+        Internships ({{ internships|length }})
+      </button>
+      <button class="btn btn-secondary btn-sm" data-admin-tab="paneResources">
+        Resources ({{ resources|length }})
+      </button>
+      <button class="btn btn-secondary btn-sm" data-admin-tab="paneStudents">
+        Students ({{ students|length }})
+      </button>
+    </div>
+  </div>
+
+  <!-- Platform Stats Bar -->
+  <div class="metrics-grid" style="margin-top: 0; margin-bottom: 2.5rem;">
+    <div class="metric-card">
+      <div>
+        <div class="metric-val">{{ stats.students }}</div>
+        <div class="metric-label">Registered Students</div>
+      </div>
+      <div class="icon-box" style="background: var(--primary-50); color: var(--primary-700);">🎓</div>
+    </div>
+
+    <div class="metric-card">
+      <div>
+        <div class="metric-val">{{ stats.roles }}</div>
+        <div class="metric-label">Job Roles</div>
+      </div>
+      <div class="icon-box" style="background: var(--info-bg); color: var(--info);">💼</div>
+    </div>
+
+    <div class="metric-card">
+      <div>
+        <div class="metric-val">{{ stats.internships }}</div>
+        <div class="metric-label">Active Listings</div>
+      </div>
+      <div class="icon-box" style="background: var(--warning-bg); color: var(--warning);">🏢</div>
+    </div>
+
+    <div class="metric-card">
+      <div>
+        <div class="metric-val">{{ stats.applications }}</div>
+        <div class="metric-label">Applications Logged</div>
+      </div>
+      <div class="icon-box" style="background: var(--purple-bg); color: var(--purple);">📬</div>
+    </div>
+
+    <div class="metric-card">
+      <div>
+        <div class="metric-val">{{ stats.resources }}</div>
+        <div class="metric-label">Learning Resources</div>
+      </div>
+      <div class="icon-box" style="background: var(--success-bg); color: var(--success);">📚</div>
+    </div>
+  </div>
+
+  <!-- TAB 1: JOB ROLES MANAGEMENT -->
+  <div class="admin-tab-pane" id="paneRoles">
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">Configured Job Roles</h2>
+        <button class="btn btn-primary btn-sm" data-modal-open="addRoleModal">+ Add Job Role</button>
+      </div>
+
+      <div class="tracker-table-wrap">
+        <table class="tracker-table">
+          <thead>
+            <tr>
+              <th>Role Title</th>
+              <th>Category</th>
+              <th>Market Demand</th>
+              <th>Average Stipend</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for r in roles %}
+              <tr>
+                <td><b>{{ r.title }}</b></td>
+                <td><span class="badge badge-gray">{{ r.category }}</span></td>
+                <td>
+                  <span class="badge {% if r.demand_level == 'Very High' %}badge-green{% elif r.demand_level == 'High' %}badge-blue{% else %}badge-amber{% endif %}">
+                    {{ r.demand_level }}
+                  </span>
+                </td>
+                <td>{{ r.avg_stipend }}</td>
+                <td style="font-size: 0.85rem; color: var(--slate-600); max-width: 320px;">{{ r.description }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 2: INTERNSHIPS MANAGEMENT -->
+  <div class="admin-tab-pane" id="paneInternships" style="display: none;">
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">Internship Listings (CRUD)</h2>
+        <button class="btn btn-primary btn-sm" data-modal-open="addInternshipModal">+ Add Internship Listing</button>
+      </div>
+
+      <div class="tracker-table-wrap">
+        <table class="tracker-table">
+          <thead>
+            <tr>
+              <th>Title & Company</th>
+              <th>Job Role</th>
+              <th>Work Mode</th>
+              <th>Stipend</th>
+              <th>Required Skills</th>
+              <th>Deadline</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for job in internships %}
+              <tr>
+                <td>
+                  <b>{{ job.title }}</b>
+                  <div style="font-size: 0.8rem; color: var(--slate-500);">{{ job.company }} · {{ job.location }}</div>
+                </td>
+                <td><span class="badge badge-blue">{{ job.role_title }}</span></td>
+                <td><span class="badge badge-gray">{{ job.mode }}</span></td>
+                <td>{{ job.stipend }}</td>
+                <td style="font-size: 0.8rem; max-width: 220px;">{{ job.required_skills }}</td>
+                <td>{{ job.deadline }}</td>
+                <td>
+                  <button class="btn btn-danger btn-sm" onclick="deleteInternship({{ job.id }})" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 3: LEARNING RESOURCES MANAGEMENT -->
+  <div class="admin-tab-pane" id="paneResources" style="display: none;">
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">Learning Resources Hub (CRUD)</h2>
+        <button class="btn btn-primary btn-sm" data-modal-open="addResourceModal">+ Add Learning Resource</button>
+      </div>
+
+      <div class="tracker-table-wrap">
+        <table class="tracker-table">
+          <thead>
+            <tr>
+              <th>Skill</th>
+              <th>Resource Title</th>
+              <th>Provider</th>
+              <th>Type</th>
+              <th>Difficulty</th>
+              <th>Est. Hours</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for res in resources %}
+              <tr>
+                <td><span class="badge badge-green">{{ res.skill_name }}</span></td>
+                <td><b><a href="{{ res.url }}" target="_blank">{{ res.title }} ↗</a></b></td>
+                <td>{{ res.provider }}</td>
+                <td><span class="badge badge-gray">{{ res.type }}</span></td>
+                <td>{{ res.difficulty }}</td>
+                <td>{{ res.est_hours }} hrs</td>
+                <td>
+                  <button class="btn btn-danger btn-sm" onclick="deleteResource({{ res.id }})" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 4: STUDENTS DIRECTORY -->
+  <div class="admin-tab-pane" id="paneStudents" style="display: none;">
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">Registered Students Directory</h2>
+        <span class="badge badge-green">{{ students|length }} Active</span>
+      </div>
+
+      <div class="tracker-table-wrap">
+        <table class="tracker-table">
+          <thead>
+            <tr>
+              <th>Student Name</th>
+              <th>Email</th>
+              <th>Target Role</th>
+              <th>Registered At</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for s in students %}
+              <tr>
+                <td><b>{{ s.name }}</b></td>
+                <td>{{ s.email }}</td>
+                <td><span class="badge badge-blue">{{ s.target_role }}</span></td>
+                <td>{{ s.created_at }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Modal: Add Job Role -->
+<div class="modal-overlay" id="addRoleModal">
+  <div class="modal-content">
+    <button class="modal-close" onclick="closeModal('addRoleModal')">×</button>
+    <h3 style="font-size: 1.25rem; color: var(--slate-900); margin-bottom: 1.25rem;">Create New Job Role</h3>
+
+    <form id="addRoleForm">
+      <div class="form-group">
+        <label class="form-label" for="roleTitle">Role Title *</label>
+        <input type="text" id="roleTitle" name="title" class="form-control" placeholder="e.g. Mobile App Developer" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="roleCategory">Category *</label>
+        <input type="text" id="roleCategory" name="category" class="form-control" placeholder="e.g. Mobile Engineering" required>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <div class="form-group">
+          <label class="form-label" for="roleStipend">Average Stipend</label>
+          <input type="text" id="roleStipend" name="avg_stipend" class="form-control" value="₹20,000 / mo">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="roleDemand">Demand Level</label>
+          <select id="roleDemand" name="demand_level" class="form-control">
+            <option value="Growing">Growing</option>
+            <option value="High" selected>High</option>
+            <option value="Very High">Very High</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="roleDesc">Role Description *</label>
+        <textarea id="roleDesc" name="description" class="form-control" rows="3" required></textarea>
+      </div>
+
+      <button type="submit" class="btn btn-primary" style="width: 100%;">Create Job Role ↗</button>
+    </form>
+  </div>
+</div>
+
+<!-- Modal: Add Internship Listing -->
+<div class="modal-overlay" id="addInternshipModal">
+  <div class="modal-content">
+    <button class="modal-close" onclick="closeModal('addInternshipModal')">×</button>
+    <h3 style="font-size: 1.25rem; color: var(--slate-900); margin-bottom: 1.25rem;">Add Internship Opportunity</h3>
+
+    <form id="addInternshipForm">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <div class="form-group">
+          <label class="form-label" for="intTitle">Opportunity Title *</label>
+          <input type="text" id="intTitle" name="title" class="form-control" placeholder="e.g. React Frontend Intern" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="intCompany">Company Name *</label>
+          <input type="text" id="intCompany" name="company" class="form-control" placeholder="e.g. NexaTech Studios" required>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <div class="form-group">
+          <label class="form-label" for="intRole">Associated Job Role *</label>
+          <select id="intRole" name="role_title" class="form-control" required>
+            {% for r in roles %}
+              <option value="{{ r.title }}">{{ r.title }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="intMode">Work Mode</label>
+          <select id="intMode" name="mode" class="form-control">
+            <option value="Remote">Remote</option>
+            <option value="Hybrid">Hybrid</option>
+            <option value="On-site">On-site</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <div class="form-group">
+          <label class="form-label" for="intLocation">Location</label>
+          <input type="text" id="intLocation" name="location" class="form-control" value="Bengaluru, India">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="intStipend">Stipend</label>
+          <input type="text" id="intStipend" name="stipend" class="form-control" value="₹25,000 / mo">
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <div class="form-group">
+          <label class="form-label" for="intDuration">Duration</label>
+          <input type="text" id="intDuration" name="duration" class="form-control" value="6 Months">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="intDeadline">Deadline Date</label>
+          <input type="date" id="intDeadline" name="deadline" class="form-control" value="2026-12-31">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="intSkills">Required Skills (Comma-separated) *</label>
+        <input type="text" id="intSkills" name="required_skills" class="form-control" placeholder="HTML & CSS, JavaScript, React, Git & GitHub" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="intDesc">Description *</label>
+        <textarea id="intDesc" name="description" class="form-control" rows="3" required></textarea>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="intUrl">Application External Link</label>
+        <input type="url" id="intUrl" name="apply_url" class="form-control" value="https://example.com/apply/demo-listing">
+      </div>
+
+      <button type="submit" class="btn btn-primary" style="width: 100%;">Publish Listing ↗</button>
+    </form>
+  </div>
+</div>
+
+<!-- Modal: Add Learning Resource -->
+<div class="modal-overlay" id="addResourceModal">
+  <div class="modal-content">
+    <button class="modal-close" onclick="closeModal('addResourceModal')">×</button>
+    <h3 style="font-size: 1.25rem; color: var(--slate-900); margin-bottom: 1.25rem;">Add Curated Learning Resource</h3>
+
+    <form id="addResourceForm">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <div class="form-group">
+          <label class="form-label" for="resSkill">Target Skill *</label>
+          <input type="text" id="resSkill" name="skill_name" class="form-control" placeholder="e.g. React, SQL, Python" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="resProvider">Provider / Platform *</label>
+          <input type="text" id="resProvider" name="provider" class="form-control" placeholder="e.g. MDN, freeCodeCamp" required>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="resTitle">Resource Title *</label>
+        <input type="text" id="resTitle" name="title" class="form-control" placeholder="e.g. Official React Learn Tutorial" required>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+        <div class="form-group">
+          <label class="form-label" for="resType">Type</label>
+          <select id="resType" name="type" class="form-control">
+            <option value="Tutorial">Tutorial</option>
+            <option value="Course">Course</option>
+            <option value="Interactive Lab">Interactive Lab</option>
+            <option value="Documentation">Documentation</option>
+            <option value="Project Guide">Project Guide</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="resDiff">Difficulty</label>
+          <select id="resDiff" name="difficulty" class="form-control">
+            <option value="Beginner">Beginner</option>
+            <option value="Intermediate">Intermediate</option>
+            <option value="Advanced">Advanced</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="resHours">Est. Hours</label>
+          <input type="number" id="resHours" name="est_hours" class="form-control" value="8">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="resUrl">Resource URL *</label>
+        <input type="url" id="resUrl" name="url" class="form-control" placeholder="https://…" required>
+      </div>
+
+      <button type="submit" class="btn btn-primary" style="width: 100%;">Add Resource ↗</button>
+    </form>
+  </div>
+</div>
+
+<script>
+// Tab Switching
+document.querySelectorAll("[data-admin-tab]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const target = btn.getAttribute("data-admin-tab");
+    document.querySelectorAll("[data-admin-tab]").forEach(b => {
+      b.classList.remove("active", "btn-primary");
+      b.classList.add("btn-secondary");
+    });
+    btn.classList.add("active", "btn-primary");
+    btn.classList.remove("btn-secondary");
+
+    document.querySelectorAll(".admin-tab-pane").forEach(pane => {
+      pane.style.display = (pane.id === target) ? "block" : "none";
+    });
+  });
+});
+
+// Admin Add Role
+const addRoleForm = document.getElementById("addRoleForm");
+if (addRoleForm) {
+  addRoleForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const payload = Object.fromEntries(new FormData(addRoleForm).entries());
+    try {
+      const res = await fetch("/api/admin/roles/add", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast(data.message, "success");
+        setTimeout(() => window.location.reload(), 700);
+      } else {
+        showToast(data.error || "Failed to add role.", "danger");
+      }
+    } catch (err) {
+      showToast("Error adding role.", "danger");
+    }
+  });
+}
+
+// Admin Add Internship
+const addInternshipForm = document.getElementById("addInternshipForm");
+if (addInternshipForm) {
+  addInternshipForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const payload = Object.fromEntries(new FormData(addInternshipForm).entries());
+    try {
+      const res = await fetch("/api/admin/internships/add", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast(data.message, "success");
+        setTimeout(() => window.location.reload(), 700);
+      } else {
+        showToast(data.error || "Failed to add listing.", "danger");
+      }
+    } catch (err) {
+      showToast("Error adding listing.", "danger");
+    }
+  });
+}
+
+// Delete Internship
+async function deleteInternship(id) {
+  if (!confirm("Are you sure you want to delete this internship listing?")) return;
+  try {
+    const res = await fetch("/api/admin/internships/delete", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id })
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast(data.message, "info");
+      setTimeout(() => window.location.reload(), 600);
+    }
+  } catch (err) {
+    showToast("Error deleting internship.", "danger");
+  }
+}
+
+// Admin Add Resource
+const addResourceForm = document.getElementById("addResourceForm");
+if (addResourceForm) {
+  addResourceForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const payload = Object.fromEntries(new FormData(addResourceForm).entries());
+    try {
+      const res = await fetch("/api/admin/resources/add", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast(data.message, "success");
+        setTimeout(() => window.location.reload(), 700);
+      } else {
+        showToast(data.error || "Failed to add resource.", "danger");
+      }
+    } catch (err) {
+      showToast("Error adding resource.", "danger");
+    }
+  });
+}
+
+// Delete Resource
+async function deleteResource(id) {
+  if (!confirm("Delete this learning resource?")) return;
+  try {
+    const res = await fetch("/api/admin/resources/delete", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id })
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast(data.message, "info");
+      setTimeout(() => window.location.reload(), 600);
+    }
+  } catch (err) {
+    showToast("Error deleting resource.", "danger");
+  }
+}
+</script>
+{% endblock %}

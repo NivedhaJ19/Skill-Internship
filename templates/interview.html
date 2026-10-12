@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+
+{% block title %}Mock Interview Prep Hub | SkillBridge{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 2.5rem; padding-bottom: 4rem;">
+  
+  <div style="margin-bottom: 2rem;">
+    <span class="badge badge-green" style="margin-bottom: 0.5rem;">Interview Mastery</span>
+    <h1 style="font-size: 2.15rem; font-weight: 800; color: var(--slate-900);">
+      Mock Interview Prep Hub
+    </h1>
+    <p style="color: var(--slate-600); font-size: 0.95rem;">
+      Real interview questions asked for <b>{{ selected_role }}</b> internships with structured answering guides, key evaluation points, and practice scratchpads.
+    </p>
+  </div>
+
+  <!-- Role Selector Pills -->
+  <div style="display: flex; gap: 0.65rem; overflow-x: auto; padding-bottom: 1rem; margin-bottom: 1.5rem;">
+    {% for r in all_roles %}
+      <a href="{{ url_for('interview_page', role=r.title) }}" 
+         class="btn btn-sm {% if r.title == selected_role %}btn-primary{% else %}btn-secondary{% endif %}"
+         style="white-space: nowrap;">
+        {{ r.title }}
+      </a>
+    {% endfor %}
+  </div>
+
+  <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2.5rem; align-items: flex-start;">
+    
+    <!-- Question Cards List -->
+    <div>
+      {% if questions %}
+        {% for q in questions %}
+          <div class="interview-item">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 0.5rem;">
+              <div style="display: flex; gap: 0.4rem; align-items: center;">
+                <span class="badge badge-blue">{{ q.category }}</span>
+                <span class="badge {% if q.difficulty == 'Easy' %}badge-green{% elif q.difficulty == 'Medium' %}badge-amber{% else %}badge-red{% endif %}">
+                  {{ q.difficulty }}
+                </span>
+              </div>
+              <small style="color: var(--slate-500); font-size: 0.8rem;">Role: {{ q.role_title }}</small>
+            </div>
+
+            <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--slate-900); margin-bottom: 1rem; line-height: 1.4;">
+              {{ q.question }}
+            </h3>
+
+            <!-- Practice Scratchpad Toggle -->
+            <div style="margin-bottom: 1rem;">
+              <button type="button" class="btn btn-secondary btn-sm" onclick="toggleScratchpad({{ q.id }})">
+                ✍ Practice Typing My Answer
+              </button>
+              <button type="button" class="btn btn-outline-primary btn-sm" onclick="toggleAnswerGuide({{ q.id }})" style="margin-left: 0.5rem;">
+                💡 Reveal Model Answer Guide
+              </button>
+            </div>
+
+            <!-- Student Scratchpad Box -->
+            <div id="scratchpad-{{ q.id }}" style="display: none; background: var(--slate-50); border: 1px dashed var(--slate-300); border-radius: var(--radius-md); padding: 1rem; margin-bottom: 1rem;">
+              <label class="form-label">Your Practice Response:</label>
+              <textarea class="form-control" rows="3" placeholder="Draft your answer here using STAR framework or technical terms…"></textarea>
+              <small style="color: var(--slate-500); display: block; margin-top: 0.35rem;">
+                Self-evaluation: Did you mention all the core concepts listed below?
+              </small>
+            </div>
+
+            <!-- Answer Guide Reveal Box -->
+            <div id="answerGuide-{{ q.id }}" class="interview-answer-box" style="display: none;">
+              <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--slate-900); margin-bottom: 0.35rem;">
+                Model Answer Strategy:
+              </h4>
+              <p style="color: var(--slate-700); line-height: 1.5; margin-bottom: 0.75rem;">
+                {{ q.sample_answer_guide }}
+              </p>
+              <div style="background: white; border: 1px solid var(--slate-200); border-radius: var(--radius-sm); padding: 0.65rem 0.85rem; font-size: 0.825rem; color: var(--primary-900); font-weight: 600;">
+                ✓ {{ q.key_points }}
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      {% else %}
+        <div class="card" style="text-align: center; padding: 3rem;">
+          <p class="text-muted">No mock questions registered for this role yet.</p>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- RIGHT: Interview Best Practices Sidebar -->
+    <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+      <div class="card">
+        <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--slate-900); margin-bottom: 1rem;">
+          The STAR Framework
+        </h3>
+        <p style="font-size: 0.85rem; color: var(--slate-600); margin-bottom: 0.85rem;">
+          Structure behavioral and project questions clearly:
+        </p>
+
+        <div style="display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.85rem;">
+          <div style="border-left: 3px solid var(--primary-600); padding-left: 0.65rem;">
+            <b>Situation:</b> Set context, company, or university project.
+          </div>
+          <div style="border-left: 3px solid #0284c7; padding-left: 0.65rem;">
+            <b>Task:</b> Define the specific technical challenge or bug.
+          </div>
+          <div style="border-left: 3px solid #f59e0b; padding-left: 0.65rem;">
+            <b>Action:</b> Detail the tools and code solutions you wrote.
+          </div>
+          <div style="border-left: 3px solid #10b981; padding-left: 0.65rem;">
+            <b>Result:</b> Quantify impact (latency, grade, user feedback).
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="background: var(--primary-50); border-color: var(--primary-200);">
+        <h4 style="font-size: 1rem; font-weight: 700; color: var(--primary-900); margin-bottom: 0.5rem;">
+          Need Practice with an AI Mentor?
+        </h4>
+        <p style="font-size: 0.85rem; color: var(--primary-800); margin-bottom: 1rem;">
+          BridgeAI is available 24/7 to conduct tailored mock interview simulations for {{ selected_role }}.
+        </p>
+        <button class="btn btn-primary btn-sm" onclick="document.getElementById('aiChatModal').classList.add('active');">
+          Launch BridgeAI Mock Interview ✨
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+function toggleScratchpad(id) {
+  const box = document.getElementById(`scratchpad-${id}`);
+  box.style.display = box.style.display === "none" ? "block" : "none";
+}
+
+function toggleAnswerGuide(id) {
+  const box = document.getElementById(`answerGuide-${id}`);
+  box.style.display = box.style.display === "none" ? "block" : "none";
+}
+</script>
+{% endblock %}

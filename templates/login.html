@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}Sign In | SkillBridge{% endblock %}
+
+{% block content %}
+<div class="container container-narrow" style="padding-top: 3.5rem; padding-bottom: 3.5rem;">
+  <div class="card" style="padding: 2.5rem; box-shadow: var(--shadow-lg);">
+    <div style="text-align: center; margin-bottom: 2rem;">
+      <span class="brand-mark" style="margin: 0 auto 1rem; width: 48px; height: 48px; font-size: 1.5rem;">S</span>
+      <h1 style="font-size: 1.75rem; color: var(--slate-900); font-weight: 800;">Welcome to SkillBridge</h1>
+      <p style="color: var(--slate-600); font-size: 0.95rem;">Sign in to access your personalized skill map and internship tracker.</p>
+    </div>
+
+    <!-- Quick Demo Accounts Switcher -->
+    <div style="background: var(--primary-50); border: 1px dashed var(--primary-300); border-radius: var(--radius-md); padding: 1rem 1.25rem; margin-bottom: 1.5rem;">
+      <p style="font-size: 0.85rem; font-weight: 700; color: var(--primary-900); margin-bottom: 0.5rem;">
+        ⚡ 1-Click Demo Logins:
+      </p>
+      <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+        <button type="button" class="btn btn-sm btn-outline-primary" onclick="fillDemo('student@demo.edu', 'student123')">
+          Demo Student (Alex Rivera)
+        </button>
+        <button type="button" class="btn btn-sm btn-secondary" onclick="fillDemo('admin@skillbridge.edu', 'admin123')">
+          Demo Admin (Platform Director)
+        </button>
+      </div>
+    </div>
+
+    <form method="POST" action="{{ url_for('login') }}">
+      <div class="form-group">
+        <label class="form-label" for="email">Email Address</label>
+        <input type="email" id="email" name="email" class="form-control" placeholder="name@college.edu" required>
+      </div>
+
+      <div class="form-group">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+          <label class="form-label" for="password" style="margin-bottom: 0;">Password</label>
+        </div>
+        <input type="password" id="password" name="password" class="form-control" placeholder="••••••••" required>
+      </div>
+
+      <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem; padding: 0.8rem;">
+        Sign In to Platform ↗
+      </button>
+    </form>
+
+    <div style="text-align: center; margin-top: 1.75rem; font-size: 0.9rem; color: var(--slate-600);">
+      Don't have an account yet? 
+      <a href="{{ url_for('register') }}" style="font-weight: 700; color: var(--primary-700);">Create free student profile</a>
+    </div>
+  </div>
+</div>
+
+<script>
+function fillDemo(email, pass) {
+  document.getElementById('email').value = email;
+  document.getElementById('password').value = pass;
+}
+</script>
+{% endblock %}

@@ -1,0 +1,260 @@
+{% extends "base.html" %}
+
+{% block title %}Personalized Learning Roadmap & Skill Quizzes | SkillBridge{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 2.5rem; padding-bottom: 4rem;">
+  
+  <div style="margin-bottom: 2.5rem;">
+    <span class="badge badge-green" style="margin-bottom: 0.5rem;">Accelerated Pathways</span>
+    <h1 style="font-size: 2.15rem; font-weight: 800; color: var(--slate-900);">
+      Personalized Learning Roadmap & Quizzes
+    </h1>
+    <p style="color: var(--slate-600); font-size: 0.95rem;">
+      Follow curated industry pathways for <b>{{ target_role.title }}</b>, test your knowledge with interactive quizzes, and earn verified skill badges.
+    </p>
+  </div>
+
+  <!-- Priority Roadmap Alerts -->
+  <div class="card" style="margin-bottom: 2.5rem; border-color: var(--primary-200); background: linear-gradient(135deg, white, var(--primary-50));">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+      <div>
+        <h3 style="font-size: 1.2rem; color: var(--slate-900); font-weight: 700; margin-bottom: 0.25rem;">
+          🎯 Your Priority Study Focus for {{ target_role.title }}
+        </h3>
+        <p style="font-size: 0.875rem; color: var(--slate-600);">
+          Strengthening your critical gaps can elevate your weighted readiness from <b>{{ analysis.readiness }}%</b> to <b>85%+</b>.
+        </p>
+      </div>
+      <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-sm">
+        Return to Student Hub ↗
+      </a>
+    </div>
+
+    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 1rem;">
+      {% for item in analysis.missing %}
+        <span class="badge badge-red" style="font-size: 0.775rem;">＋ Start: {{ item.name }} (Target: Lvl {{ item.required }})</span>
+      {% endfor %}
+      {% for item in analysis.improve %}
+        <span class="badge badge-amber" style="font-size: 0.775rem;">↗ Deepen: {{ item.name }} (Current: {{ item.current }}/{{ item.required }})</span>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 1.4fr 1fr; gap: 2.5rem; align-items: flex-start;">
+    
+    <!-- LEFT: Interactive Skill Quizzes & Resources -->
+    <div>
+      
+      <!-- Skill Quizzes Hub -->
+      <div style="margin-bottom: 3rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+          <div>
+            <h2 style="font-size: 1.45rem; font-weight: 800; color: var(--slate-900);">
+              Interactive Skill Quizzes
+            </h2>
+            <p style="font-size: 0.85rem; color: var(--slate-500);">
+              Score 100% on a quiz to verify your competency and earn verified skill badges!
+            </p>
+          </div>
+          <span class="badge badge-green">Verified Badges</span>
+        </div>
+
+        {% if quizzes %}
+          {% for q in quizzes %}
+            <div class="quiz-card" id="quizCard-{{ q.id }}">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <span class="badge badge-blue">{{ q.skill_name }}</span>
+                <small style="color: var(--slate-400); font-size: 0.75rem;">Quiz #{{ q.id }}</small>
+              </div>
+
+              <h3 style="font-size: 1.05rem; font-weight: 700; color: var(--slate-900); margin-bottom: 1rem; line-height: 1.4;">
+                {{ q.question }}
+              </h3>
+
+              <div class="quiz-options">
+                <button type="button" class="quiz-option-btn" data-quiz="{{ q.id }}" data-option="A">
+                  <b>A.</b> <span>{{ q.option_a }}</span>
+                </button>
+                <button type="button" class="quiz-option-btn" data-quiz="{{ q.id }}" data-option="B">
+                  <b>B.</b> <span>{{ q.option_b }}</span>
+                </button>
+                <button type="button" class="quiz-option-btn" data-quiz="{{ q.id }}" data-option="C">
+                  <b>C.</b> <span>{{ q.option_c }}</span>
+                </button>
+                <button type="button" class="quiz-option-btn" data-quiz="{{ q.id }}" data-option="D">
+                  <b>D.</b> <span>{{ q.option_d }}</span>
+                </button>
+              </div>
+
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
+                <button type="button" class="btn btn-primary btn-sm submit-quiz-btn" data-quiz="{{ q.id }}">
+                  Check Answer ↗
+                </button>
+              </div>
+
+              <!-- Result Feedback Box -->
+              <div class="quiz-feedback-box" id="feedback-{{ q.id }}" style="display: none; margin-top: 1rem; padding: 1rem; border-radius: var(--radius-md); font-size: 0.875rem;"></div>
+            </div>
+          {% endfor %}
+        {% endif %}
+      </div>
+
+      <!-- Curated Learning Resources -->
+      <div>
+        <h2 style="font-size: 1.45rem; font-weight: 800; color: var(--slate-900); margin-bottom: 1.25rem;">
+          Curated Free Learning Resources
+        </h2>
+
+        <div style="display: grid; grid-template-columns: 1fr; gap: 1rem;">
+          {% for r in resources %}
+            <div class="card" style="padding: 1.25rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap;">
+              <div style="flex: 1;">
+                <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.25rem;">
+                  <span class="badge badge-green" style="font-size: 0.7rem;">{{ r.skill_name }}</span>
+                  <span class="badge badge-gray" style="font-size: 0.7rem;">{{ r.difficulty }}</span>
+                  <span style="font-size: 0.75rem; color: var(--slate-500);">~{{ r.est_hours }} hrs</span>
+                </div>
+                <h4 style="font-size: 1rem; font-weight: 700; color: var(--slate-900);">{{ r.title }}</h4>
+                <div style="font-size: 0.8rem; color: var(--slate-500);">Provider: <b>{{ r.provider }}</b> · Format: {{ r.type }}</div>
+              </div>
+
+              <a href="{{ r.url }}" target="_blank" rel="noopener noreferrer" class="btn btn-outline-primary btn-sm">
+                Start Learning ↗
+              </a>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT: Milestone Tracker & Badges -->
+    <div style="display: flex; flex-direction: column; gap: 2rem;">
+      
+      <!-- Verified Skill Badges -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Your Earned Badges</h2>
+          <span class="badge badge-green">{{ badges|length }} Earned</span>
+        </div>
+
+        {% if badges %}
+          <div class="badges-gallery">
+            {% for b in badges %}
+              <div class="badge-item" title="{{ b.description }}">
+                <div class="badge-icon-circle">🎖️</div>
+                <div class="badge-name">{{ b.badge_name }}</div>
+                <small style="font-size: 0.7rem; color: var(--slate-500);">Verified</small>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div style="text-align: center; padding: 2rem; color: var(--slate-500);">
+            <div style="font-size: 2rem; margin-bottom: 0.5rem;">🏅</div>
+            <p style="font-size: 0.85rem;">Answer the quizzes on the left correctly to earn your first badges!</p>
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- 3-Stage Career Roadmap Progression -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">3-Stage Career Progression</h2>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+          <div style="border-left: 3px solid var(--primary-600); padding-left: 1rem;">
+            <span class="badge badge-green" style="font-size: 0.7rem;">Stage 1: Core Fundamentals</span>
+            <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--slate-900); margin: 0.25rem 0;">Language Syntax & Principles</h4>
+            <p style="font-size: 0.825rem; color: var(--slate-600);">Master core programming constructs, memory models, asynchronous execution, and semantic layouts.</p>
+          </div>
+
+          <div style="border-left: 3px solid #0284c7; padding-left: 1rem;">
+            <span class="badge badge-blue" style="font-size: 0.7rem;">Stage 2: Applied Tooling & APIs</span>
+            <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--slate-900); margin: 0.25rem 0;">Frameworks, Databases & REST</h4>
+            <p style="font-size: 0.825rem; color: var(--slate-600);">Design relational database schemas, write query joins, and structure reliable client-server data flows.</p>
+          </div>
+
+          <div style="border-left: 3px solid #8b5cf6; padding-left: 1rem;">
+            <span class="badge badge-purple" style="font-size: 0.7rem;">Stage 3: Capstone & Production</span>
+            <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--slate-900); margin: 0.25rem 0;">Deployments & Portfolio Projects</h4>
+            <p style="font-size: 0.825rem; color: var(--slate-600);">Host live web applications, write tests, configure CI/CD automations, and document clean READMEs.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+// Quiz Client Interactivity
+document.querySelectorAll(".quiz-option-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const quizId = btn.getAttribute("data-quiz");
+    const parentCard = document.getElementById(`quizCard-${quizId}`);
+    parentCard.querySelectorAll(".quiz-option-btn").forEach(b => b.classList.remove("selected"));
+    btn.classList.add("selected");
+  });
+});
+
+document.querySelectorAll(".submit-quiz-btn").forEach(submitBtn => {
+  submitBtn.addEventListener("click", async () => {
+    const quizId = submitBtn.getAttribute("data-quiz");
+    const parentCard = document.getElementById(`quizCard-${quizId}`);
+    const selectedBtn = parentCard.querySelector(".quiz-option-btn.selected");
+
+    if (!selectedBtn) {
+      showToast("Please choose an answer option.", "warning");
+      return;
+    }
+
+    const selectedOption = selectedBtn.getAttribute("data-option");
+    submitBtn.disabled = true;
+    submitBtn.innerText = "Checking…";
+
+    try {
+      const res = await fetch("/api/quiz/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ quiz_id: quizId, selected_option: selectedOption })
+      });
+      const data = await res.json();
+      const feedbackBox = document.getElementById(`feedback-${quizId}`);
+      feedbackBox.style.display = "block";
+
+      if (data.correct) {
+        selectedBtn.classList.add("correct");
+        feedbackBox.style.background = "#ecfdf5";
+        feedbackBox.style.color = "#065f46";
+        feedbackBox.style.border = "1px solid #a7f3d0";
+        feedbackBox.innerHTML = `
+          <b>✓ Correct Answer!</b><br>
+          ${data.explanation}<br>
+          ${data.reward ? `<b style="color:#047857; margin-top:0.35rem; display:inline-block;">🎉 ${data.reward}</b>` : ""}
+        `;
+        showToast("Correct! Competency verified.", "success");
+      } else {
+        selectedBtn.classList.add("incorrect");
+        feedbackBox.style.background = "#fef2f2";
+        feedbackBox.style.color = "#991b1b";
+        feedbackBox.style.border = "1px solid #fecaca";
+        feedbackBox.innerHTML = `
+          <b>✗ Incorrect.</b> The correct option was <b>${data.correct_option}</b>.<br>
+          ${data.explanation}
+        `;
+        showToast("Not quite. Review the explanation.", "warning");
+      }
+    } catch (err) {
+      showToast("Error checking quiz answer.", "danger");
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.innerText = "Check Answer ↗";
+    }
+  });
+});
+</script>
+{% endblock %}

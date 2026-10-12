@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}Create Student Account | SkillBridge{% endblock %}
+
+{% block content %}
+<div class="container container-narrow" style="padding-top: 3rem; padding-bottom: 3.5rem;">
+  <div class="card" style="padding: 2.5rem; box-shadow: var(--shadow-lg);">
+    <div style="text-align: center; margin-bottom: 2rem;">
+      <span class="brand-mark" style="margin: 0 auto 1rem; width: 48px; height: 48px; font-size: 1.5rem;">S</span>
+      <h1 style="font-size: 1.75rem; color: var(--slate-900); font-weight: 800;">Join SkillBridge</h1>
+      <p style="color: var(--slate-600); font-size: 0.95rem;">Map your technical skills to high-demand careers and unlock suitable internships.</p>
+    </div>
+
+    <form method="POST" action="{{ url_for('register') }}">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <div class="form-group">
+          <label class="form-label" for="name">Full Name *</label>
+          <input type="text" id="name" name="name" class="form-control" placeholder="Alex Rivera" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="email">Student / College Email *</label>
+          <input type="email" id="email" name="email" class="form-control" placeholder="alex@college.edu" required>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="password">Create Password *</label>
+        <input type="password" id="password" name="password" class="form-control" placeholder="Minimum 6 characters" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="target_role">Your Desired Career Goal *</label>
+        <select id="target_role" name="target_role" class="form-control" required>
+          {% for r in all_roles %}
+            <option value="{{ r.title }}">{{ r.title }} ({{ r.category }})</option>
+          {% endfor %}
+        </select>
+        <small style="color: var(--slate-500); font-size: 0.8rem; margin-top: 0.25rem; display: block;">
+          You can change this or track multiple roles anytime from your dashboard.
+        </small>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <div class="form-group">
+          <label class="form-label" for="education">Degree / Major</label>
+          <input type="text" id="education" name="education" class="form-control" placeholder="B.Tech Computer Science">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="institution">College / University</label>
+          <input type="text" id="institution" name="institution" class="form-control" placeholder="National Institute of Technology">
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem; padding: 0.8rem;">
+        Complete Registration & Build Skill Map ↗
+      </button>
+    </form>
+
+    <div style="text-align: center; margin-top: 1.75rem; font-size: 0.9rem; color: var(--slate-600);">
+      Already have an account? 
+      <a href="{{ url_for('login') }}" style="font-weight: 700; color: var(--primary-700);">Sign in here</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,290 @@
+{% extends "base.html" %}
+
+{% block title %}Internship Discovery & Application Tracker | SkillBridge{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 2.5rem; padding-bottom: 4rem;">
+  
+  <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <span class="badge badge-green" style="margin-bottom: 0.5rem;">Opportunity Intelligence</span>
+      <h1 style="font-size: 2.15rem; font-weight: 800; color: var(--slate-900);">
+        Internship Discovery & Tracker
+      </h1>
+      <p style="color: var(--slate-600); font-size: 0.95rem;">
+        Discover internships ranked by your actual skill match and manage every stage of your applications.
+      </p>
+    </div>
+
+    <!-- Tab navigation -->
+    <div style="display: flex; gap: 0.5rem; background: var(--slate-100); padding: 0.35rem; border-radius: var(--radius-md);">
+      <button class="btn btn-primary btn-sm active" data-internship-tab="paneAll">
+        All Opportunities ({{ internships|length }})
+      </button>
+      <button class="btn btn-secondary btn-sm" data-internship-tab="paneBookmarks">
+        ★ Bookmarked ({{ bookmarks|length }})
+      </button>
+      <button class="btn btn-secondary btn-sm" data-internship-tab="paneTracker">
+        📬 Application Tracker ({{ tracked_apps|length }})
+      </button>
+    </div>
+  </div>
+
+  <!-- Search & Filter Card -->
+  <div class="search-filter-card">
+    <form method="GET" action="{{ url_for('internships_page') }}" class="filter-grid">
+      <div class="form-group" style="margin-bottom: 0;">
+        <label class="form-label" for="searchQ">Keyword / Skill / Company</label>
+        <input type="text" id="searchQ" name="q" class="form-control" placeholder="Search by role, skill (e.g. React), or company…" value="{{ search_q }}">
+      </div>
+
+      <div class="form-group" style="margin-bottom: 0;">
+        <label class="form-label" for="filterRole">Target Job Role</label>
+        <select id="filterRole" name="role" class="form-control">
+          <option value="">All Job Roles</option>
+          {% for r in all_roles %}
+            <option value="{{ r.title }}" {% if r.title == role_filter %}selected{% endif %}>{{ r.title }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-group" style="margin-bottom: 0;">
+        <label class="form-label" for="filterMode">Work Mode</label>
+        <select id="filterMode" name="mode" class="form-control">
+          <option value="">All Modes</option>
+          <option value="Remote" {% if mode_filter == 'Remote' %}selected{% endif %}>Remote</option>
+          <option value="Hybrid" {% if mode_filter == 'Hybrid' %}selected{% endif %}>Hybrid</option>
+          <option value="On-site" {% if mode_filter == 'On-site' %}selected{% endif %}>On-site</option>
+        </select>
+      </div>
+
+      <div style="display: flex; gap: 0.5rem;">
+        <button type="submit" class="btn btn-primary" style="padding: 0.65rem 1.25rem;">
+          Filter 🔍
+        </button>
+        {% if search_q or role_filter or mode_filter %}
+          <a href="{{ url_for('internships_page') }}" class="btn btn-secondary" style="padding: 0.65rem 0.95rem;">
+            Reset
+          </a>
+        {% endif %}
+      </div>
+    </form>
+  </div>
+
+  <!-- TAB PANE 1: ALL INTERNSHIPS -->
+  <div class="internship-tab-pane" id="paneAll">
+    {% if internships %}
+      <div class="internship-grid">
+        {% for job in internships %}
+          <div class="internship-card">
+            <div>
+              <div class="internship-top">
+                <div style="flex: 1;">
+                  <span class="badge badge-gray" style="font-size: 0.7rem; margin-bottom: 0.25rem;">{{ job.role_title }}</span>
+                  <h3 style="font-size: 1.15rem; color: var(--slate-900); font-weight: 700; line-height: 1.3;">{{ job.title }}</h3>
+                  <div style="color: var(--slate-600); font-size: 0.875rem; font-weight: 600; margin-top: 0.2rem;">
+                    {{ job.company }}
+                  </div>
+                </div>
+                <div class="company-logo">{{ job.company[:1] }}</div>
+              </div>
+
+              <!-- Match Pill -->
+              <div style="margin: 0.85rem 0;">
+                <span class="match-pill {% if job.match_score >= 70 %}match-high{% elif job.match_score >= 40 %}match-med{% else %}match-low{% endif %}">
+                  ★ {{ job.match_score }}% Skill Match
+                </span>
+              </div>
+
+              <div class="internship-chips" style="margin-bottom: 1rem;">
+                <span class="internship-chip">📍 {{ job.location }}</span>
+                <span class="internship-chip">💼 {{ job.mode }}</span>
+                <span class="internship-chip">💰 {{ job.stipend }}</span>
+                <span class="internship-chip">⏳ {{ job.duration }}</span>
+              </div>
+
+              <p style="font-size: 0.85rem; color: var(--slate-600); line-height: 1.5; margin-bottom: 1rem;">
+                {{ job.description }}
+              </p>
+
+              <!-- Skill Match Breakdown -->
+              <div class="skill-match-breakdown">
+                <div style="font-size: 0.8rem; margin-bottom: 0.35rem;">
+                  <b>Your Skills Fit:</b>
+                </div>
+                <div style="display: flex; gap: 0.35rem; flex-wrap: wrap;">
+                  {% for s in job.matched_skills %}
+                    <span class="badge badge-green" style="font-size: 0.72rem;">✓ {{ s }}</span>
+                  {% endfor %}
+                  {% for s in job.missing_skills %}
+                    <span class="badge badge-red" style="font-size: 0.72rem;">＋ {{ s }}</span>
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+
+            <div style="border-top: 1px solid var(--slate-100); padding-top: 1rem; display: flex; justify-content: space-between; align-items: center; gap: 0.75rem;">
+              <button class="btn btn-sm {% if job.is_bookmarked %}btn-primary{% else %}btn-secondary{% endif %} bookmark-btn" data-id="{{ job.id }}">
+                {% if job.is_bookmarked %}★ Bookmarked{% else %}☆ Bookmark{% endif %}
+              </button>
+
+              {% if job.application %}
+                <span class="badge badge-blue">Tracked ({{ job.application.status }})</span>
+              {% else %}
+                <button class="btn btn-primary btn-sm apply-track-btn" data-id="{{ job.id }}" data-url="{{ job.apply_url }}">
+                  Apply & Track ↗
+                </button>
+              {% endif %}
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="card" style="text-align: center; padding: 3rem;">
+        <div style="font-size: 3rem; margin-bottom: 1rem;">🔍</div>
+        <h3 style="font-size: 1.25rem; color: var(--slate-800); margin-bottom: 0.5rem;">No matching internships found</h3>
+        <p style="color: var(--slate-600); font-size: 0.925rem; margin-bottom: 1.25rem;">
+          Try broadening your search query or reset filters to view all opportunities.
+        </p>
+        <a href="{{ url_for('internships_page') }}" class="btn btn-outline-primary btn-sm">Clear All Filters</a>
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- TAB PANE 2: SAVED BOOKMARKS -->
+  <div class="internship-tab-pane" id="paneBookmarks" style="display: none;">
+    {% set bookmarked_jobs = internships|selectattr('is_bookmarked')|list %}
+    {% if bookmarked_jobs %}
+      <div class="internship-grid">
+        {% for job in bookmarked_jobs %}
+          <div class="internship-card">
+            <div>
+              <div class="internship-top">
+                <div>
+                  <span class="badge badge-gray" style="font-size: 0.7rem;">{{ job.role_title }}</span>
+                  <h3 style="font-size: 1.15rem; color: var(--slate-900); font-weight: 700; margin-top: 0.2rem;">{{ job.title }}</h3>
+                  <div style="color: var(--slate-600); font-size: 0.875rem; font-weight: 600;">{{ job.company }}</div>
+                </div>
+                <div class="company-logo">{{ job.company[:1] }}</div>
+              </div>
+
+              <div style="margin: 0.75rem 0;">
+                <span class="match-pill {% if job.match_score >= 70 %}match-high{% elif job.match_score >= 40 %}match-med{% else %}match-low{% endif %}">
+                  ★ {{ job.match_score }}% Match
+                </span>
+              </div>
+
+              <div class="internship-chips" style="margin-bottom: 0.75rem;">
+                <span class="internship-chip">📍 {{ job.location }}</span>
+                <span class="internship-chip">💼 {{ job.mode }}</span>
+                <span class="internship-chip">💰 {{ job.stipend }}</span>
+              </div>
+
+              <p style="font-size: 0.85rem; color: var(--slate-600); line-height: 1.5; margin-bottom: 0.75rem;">
+                {{ job.description }}
+              </p>
+            </div>
+
+            <div style="border-top: 1px solid var(--slate-100); padding-top: 1rem; display: flex; justify-content: space-between; align-items: center;">
+              <button class="btn btn-sm btn-primary bookmark-btn" data-id="{{ job.id }}">
+                ★ Bookmarked
+              </button>
+              <button class="btn btn-primary btn-sm apply-track-btn" data-id="{{ job.id }}" data-url="{{ job.apply_url }}">
+                Apply & Track ↗
+              </button>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="card" style="text-align: center; padding: 3rem;">
+        <div style="font-size: 3rem; margin-bottom: 1rem;">⭐</div>
+        <h3 style="font-size: 1.25rem; color: var(--slate-800); margin-bottom: 0.5rem;">No saved bookmarks yet</h3>
+        <p style="color: var(--slate-600); font-size: 0.925rem;">
+          Click the "☆ Bookmark" button on any opportunity card to save it here for later.
+        </p>
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- TAB PANE 3: APPLICATION TRACKER -->
+  <div class="internship-tab-pane" id="paneTracker" style="display: none;">
+    <div class="card" style="padding: 1.75rem;">
+      <div style="margin-bottom: 1.5rem;">
+        <h2 style="font-size: 1.35rem; color: var(--slate-900); font-weight: 800;">
+          My Applications Pipeline
+        </h2>
+        <p style="font-size: 0.875rem; color: var(--slate-600);">
+          Keep track of your internship applications from submission through interviews and offers.
+        </p>
+      </div>
+
+      {% if tracked_apps %}
+        <div class="tracker-table-wrap">
+          <table class="tracker-table">
+            <thead>
+              <tr>
+                <th>Opportunity & Company</th>
+                <th>Work Mode</th>
+                <th>Deadline</th>
+                <th>Status Stage</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for app in tracked_apps %}
+                <tr>
+                  <td>
+                    <b style="color: var(--slate-900); font-size: 0.95rem; display: block;">{{ app.title }}</b>
+                    <span style="font-size: 0.825rem; color: var(--slate-600);">{{ app.company }} · {{ app.role_title }}</span>
+                  </td>
+                  <td>
+                    <span class="badge badge-gray">{{ app.mode }}</span>
+                  </td>
+                  <td>
+                    <span style="font-size: 0.85rem; color: var(--slate-700);">{{ app.deadline }}</span>
+                  </td>
+                  <td>
+                    <select class="form-control tracker-status-select" data-app-id="{{ app.app_id }}" style="width: auto; padding: 0.35rem 0.65rem; font-size: 0.85rem; font-weight: 600;">
+                      <option value="Bookmarked" {% if app.status == 'Bookmarked' %}selected{% endif %}>Bookmarked</option>
+                      <option value="Applied" {% if app.status == 'Applied' %}selected{% endif %}>Applied</option>
+                      <option value="Under Review" {% if app.status == 'Under Review' %}selected{% endif %}>Under Review</option>
+                      <option value="Interview Scheduled" {% if app.status == 'Interview Scheduled' %}selected{% endif %}>Interview Scheduled</option>
+                      <option value="Offer Received" {% if app.status == 'Offer Received' %}selected{% endif %}>Offer Received</option>
+                      <option value="Not Selected" {% if app.status == 'Not Selected' %}selected{% endif %}>Not Selected</option>
+                    </select>
+                  </td>
+                  <td>
+                    <div style="display: flex; gap: 0.5rem; align-items: center;">
+                      <a href="{{ app.apply_url }}" target="_blank" class="btn btn-secondary btn-sm" title="View Application Details">
+                        View ↗
+                      </a>
+                      <button class="delete-app-btn" data-app-id="{{ app.app_id }}" style="background:none; border:none; color: var(--slate-400); cursor:pointer; font-size:1.2rem;" title="Remove from Tracker">
+                        ×
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div style="text-align: center; padding: 3rem 1rem;">
+          <div style="font-size: 3rem; margin-bottom: 0.5rem;">📬</div>
+          <h3 style="font-size: 1.15rem; color: var(--slate-800); margin-bottom: 0.5rem;">No tracked applications yet</h3>
+          <p style="font-size: 0.875rem; color: var(--slate-600); margin-bottom: 1rem;">
+            When you apply to an internship, click "Apply & Track" to monitor your status through each round!
+          </p>
+          <button class="btn btn-outline-primary btn-sm" data-internship-tab="paneAll">Browse Opportunities</button>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/internships.js') }}"></script>
+{% endblock %}

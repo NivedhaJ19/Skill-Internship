@@ -1,0 +1,506 @@
+{% extends "base.html" %}
+
+{% block title %}{{ user.name }}'s Dashboard | SkillBridge{% endblock %}
+
+{% block content %}
+<!-- Student Profile Header Banner -->
+<section class="dashboard-header">
+  <div class="container">
+    <div class="profile-card">
+      <div class="profile-info">
+        <div class="profile-avatar">{{ user.name[:1] }}</div>
+        <div class="profile-details">
+          <h1>{{ user.name }}</h1>
+          <p>{{ user.headline or 'Aspiring Software Professional' }}</p>
+          <div class="profile-meta-tags">
+            <span class="profile-tag">🎓 {{ user.education or 'Undergraduate Student' }}</span>
+            <span class="profile-tag">🏛 {{ user.institution or 'University' }} ({{ user.graduation_year or '2026' }})</span>
+            {% if user.github_url %}
+              <a href="{{ user.github_url }}" target="_blank" class="profile-tag" style="text-decoration:none;">💻 GitHub ↗</a>
+            {% endif %}
+            {% if user.linkedin_url %}
+              <a href="{{ user.linkedin_url }}" target="_blank" class="profile-tag" style="text-decoration:none;">🔗 LinkedIn ↗</a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <div class="profile-actions">
+        <!-- Target Role Quick Switcher -->
+        <div style="background: rgba(255,255,255,0.15); backdrop-filter: blur(8px); padding: 0.5rem 0.85rem; border-radius: var(--radius-md); display: flex; align-items: center; gap: 0.5rem;">
+          <span style="font-size: 0.8rem; font-weight: 700; color: white;">Target Role:</span>
+          <select id="headerTargetRoleSelector" data-user-name="{{ user.name }}" class="form-control" style="width: auto; padding: 0.25rem 0.6rem; font-size: 0.85rem; font-weight: 700; background: white; color: var(--slate-900);">
+            {% for r in all_roles %}
+              <option value="{{ r.title }}" {% if r.title == target_role.title %}selected{% endif %}>{{ r.title }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <button class="btn btn-secondary btn-sm" data-modal-open="editProfileModal">
+          ✎ Edit Profile
+        </button>
+        <button class="btn btn-primary btn-sm" data-modal-open="resumeModal">
+          📄 Scan Resume
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Dashboard Container -->
+<div class="container">
+  
+  <!-- Metrics Grid -->
+  <div class="metrics-grid">
+    <div class="metric-card">
+      <div>
+        <div class="metric-val" style="color: var(--primary-700);">{{ analysis.readiness }}%</div>
+        <div class="metric-label">Weighted Readiness</div>
+      </div>
+      <div class="icon-box" style="background: var(--primary-50); color: var(--primary-700);">🎯</div>
+    </div>
+
+    <div class="metric-card">
+      <div>
+        <div class="metric-val" style="color: #15803d;">{{ analysis.matched|length }}</div>
+        <div class="metric-label">Target Level Met</div>
+      </div>
+      <div class="icon-box" style="background: #dcfce7; color: #15803d;">✓</div>
+    </div>
+
+    <div class="metric-card">
+      <div>
+        <div class="metric-val" style="color: #b45309;">{{ analysis.improve|length }}</div>
+        <div class="metric-label">Strengthen Next</div>
+      </div>
+      <div class="icon-box" style="background: #fef3c7; color: #b45309;">↗</div>
+    </div>
+
+    <div class="metric-card">
+      <div>
+        <div class="metric-val" style="color: #b91c1c;">{{ analysis.missing|length }}</div>
+        <div class="metric-label">Missing Critical</div>
+      </div>
+      <div class="icon-box" style="background: #fee2e2; color: #b91c1c;">＋</div>
+    </div>
+
+    <div class="metric-card">
+      <div>
+        <div class="metric-val" style="color: var(--slate-800);">{{ app_summary.get('Applied', 0) + app_summary.get('Under Review', 0) }}</div>
+        <div class="metric-label">Active Applications</div>
+      </div>
+      <div class="icon-box" style="background: var(--slate-100); color: var(--slate-700);">📬</div>
+    </div>
+  </div>
+
+  <!-- Main 2-Column Dashboard Layout -->
+  <div class="dashboard-grid">
+    
+    <!-- LEFT COLUMN: Skill Gap Analysis, Visual Gap Bars, Milestones & Projects -->
+    <div style="display: flex; flex-direction: column; gap: 2rem;">
+      
+      <!-- Skill Gap Analyzer Card -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <span class="badge badge-green" style="font-size:0.75rem;">Role Benchmark</span>
+            <h2 class="card-title">{{ target_role.title }} Skill Gap Analyzer</h2>
+          </div>
+          <a href="{{ url_for('learning') }}" class="btn btn-outline-primary btn-sm">
+            Open Learning Roadmap ↗
+          </a>
+        </div>
+
+        <!-- Readiness Score Banner -->
+        <div class="readiness-banner">
+          <div class="score-dial">
+            <span class="score-number">{{ analysis.readiness }}<span class="score-percent">%</span></span>
+          </div>
+          <div>
+            <h3 style="font-size: 1.15rem; color: var(--slate-900); margin-bottom: 0.35rem;">
+              {% if analysis.readiness >= 80 %}
+                🌟 Outstanding Readiness for Internships!
+              {% elif analysis.readiness >= 60 %}
+                🚀 Solid Foundation! Strengthen 2 critical skills to stand out.
+              {% else %}
+                🌱 Building Momentum! Follow your milestones to level up.
+              {% endif %}
+            </h3>
+            <p style="font-size: 0.875rem; color: var(--slate-600); line-height: 1.5;">
+              Average stipend for {{ target_role.title }}: <b>{{ target_role.avg_stipend }}</b>. 
+              Demand is currently ranked <b>{{ target_role.demand_level }}</b>.
+            </p>
+          </div>
+        </div>
+
+        <!-- Visual Gap Meter Bars -->
+        <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--slate-800); margin-bottom: 1rem;">
+          Detailed Skill Benchmark Breakdown:
+        </h4>
+
+        <div class="skill-bar-list">
+          {% for item in analysis.matched + analysis.improve + analysis.missing %}
+            <div class="skill-bar-item">
+              <div class="skill-bar-header">
+                <div>
+                  <span style="font-weight: 700; color: var(--slate-900);">{{ item.name }}</span>
+                  <span class="badge badge-gray" style="font-size: 0.7rem; margin-left: 0.35rem;">{{ item.category }}</span>
+                </div>
+                <div style="font-size: 0.85rem;">
+                  {% if item.current >= item.required %}
+                    <span class="badge badge-green">✓ Target Met ({{ item.current }}/5)</span>
+                  {% elif item.current > 0 %}
+                    <span class="badge badge-amber">↗ Gap: -{{ item.gap }} ({{ item.current }}/{{ item.required }})</span>
+                  {% else %}
+                    <span class="badge badge-red">＋ Not Started (0/{{ item.required }})</span>
+                  {% endif %}
+                </div>
+              </div>
+
+              <!-- Dual progress bar representing Current vs Target -->
+              <div class="skill-bar-track">
+                <div class="skill-bar-fill" 
+                     style="width: {{ (item.current / 5) * 100 }}%; 
+                            background: {% if item.current >= item.required %}#16a34a{% elif item.current > 0 %}#f59e0b{% else %}#ef4444{% endif %};">
+                </div>
+                <!-- Target level line marker -->
+                <div class="skill-bar-target-marker" style="left: {{ (item.required / 5) * 100 }}%;" title="Target: {{ item.required }}/5"></div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Milestone Checklist Card -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Learning Milestones & Progress</h2>
+          <span class="badge badge-blue">
+            {{ milestones|selectattr('completed', 'equalto', 1)|list|length }} of {{ milestones|length }} Done
+          </span>
+        </div>
+
+        {% if milestones %}
+          <div style="display: flex; flex-direction: column; gap: 0.85rem;">
+            {% for m in milestones %}
+              <div class="milestone-item {% if m.completed %}completed{% endif %}" 
+                   style="background: var(--slate-50); border: 1px solid var(--slate-200); border-radius: var(--radius-md); padding: 0.85rem 1rem; display: flex; align-items: center; justify-content: space-between;">
+                <label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer; flex: 1;">
+                  <input type="checkbox" class="milestone-checkbox" data-id="{{ m.id }}" {% if m.completed %}checked{% endif %} style="width: 18px; height: 18px; accent-color: var(--primary-600);">
+                  <div>
+                    <b style="font-size: 0.925rem; color: var(--slate-800); {% if m.completed %}text-decoration: line-through; opacity: 0.7;{% endif %}">{{ m.milestone_title }}</b>
+                    <div style="font-size: 0.75rem; color: var(--slate-500);">Skill focus: {{ m.skill_name }}</div>
+                  </div>
+                </label>
+                {% if m.completed %}
+                  <span class="badge badge-green" style="font-size: 0.7rem;">Completed</span>
+                {% else %}
+                  <span class="badge badge-gray" style="font-size: 0.7rem;">In Progress</span>
+                {% endif %}
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="text-muted" style="font-size: 0.9rem;">No milestones configured yet. Complete quizzes to generate automatic milestones!</p>
+        {% endif %}
+      </div>
+
+      <!-- Project Portfolio Card -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">Project Portfolio Showcase</h2>
+            <p style="font-size: 0.85rem; color: var(--slate-500);">Demonstrate your skills with code repositories and live applications.</p>
+          </div>
+          <button class="btn btn-primary btn-sm" data-modal-open="addProjectModal">
+            + Add Project
+          </button>
+        </div>
+
+        {% if projects %}
+          <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.25rem;">
+            {% for p in projects %}
+              <div class="project-card">
+                <div>
+                  <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+                    <h3 style="font-size: 1.05rem; font-weight: 700; color: var(--slate-900);">{{ p.title }}</h3>
+                    <button class="delete-project-btn" data-id="{{ p.id }}" style="background:none; border:none; color: var(--slate-400); cursor:pointer; font-size:1.1rem;" title="Delete Project">×</button>
+                  </div>
+                  <p style="font-size: 0.85rem; color: var(--slate-600); line-height: 1.5; margin-bottom: 0.75rem;">
+                    {{ p.description }}
+                  </p>
+                  <div class="project-tags">
+                    {% for tag in p.tech_stack.split(',') %}
+                      <span class="project-tag">{{ tag.strip() }}</span>
+                    {% endfor %}
+                  </div>
+                </div>
+
+                <div style="display: flex; gap: 0.75rem; border-top: 1px solid var(--slate-100); padding-top: 0.75rem; margin-top: 0.75rem;">
+                  {% if p.repo_url %}
+                    <a href="{{ p.repo_url }}" target="_blank" class="btn btn-secondary btn-sm" style="flex: 1;">
+                      GitHub ↗
+                    </a>
+                  {% endif %}
+                  {% if p.live_url %}
+                    <a href="{{ p.live_url }}" target="_blank" class="btn btn-primary btn-sm" style="flex: 1;">
+                      Live Demo ↗
+                    </a>
+                  {% endif %}
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div style="text-align: center; padding: 2rem; background: var(--slate-50); border-radius: var(--radius-md); border: 1px dashed var(--slate-300);">
+            <div style="font-size: 2rem; margin-bottom: 0.5rem;">📁</div>
+            <p style="font-size: 0.9rem; color: var(--slate-600); margin-bottom: 1rem;">You haven't showcased any projects yet. Projects give employers tangible proof of your skills!</p>
+            <button class="btn btn-outline-primary btn-sm" data-modal-open="addProjectModal">+ Add Your First Project</button>
+          </div>
+        {% endif %}
+      </div>
+
+    </div>
+
+    <!-- RIGHT COLUMN: Radar Chart, Skills Manager, Badges, & Top Matches -->
+    <div style="display: flex; flex-direction: column; gap: 2rem;">
+      
+      <!-- Interactive Radar Benchmark Card -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Skill Profile Radar</h2>
+          <span class="badge badge-green">Industry Fit</span>
+        </div>
+        <div class="chart-container">
+          <canvas id="skillRadarCanvas"
+                  data-labels='{{ analysis.radar.labels|tojson }}'
+                  data-user='{{ analysis.radar.user_data|tojson }}'
+                  data-target='{{ analysis.radar.target_data|tojson }}'>
+          </canvas>
+        </div>
+        <p style="font-size: 0.75rem; color: var(--slate-500); text-align: center; margin-top: 0.75rem;">
+          Green fill shows your current assessed skill levels; dotted gray lines denote the industry target level.
+        </p>
+      </div>
+
+      <!-- Skills Manager Card -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Your Skills ({{ user_skills|length }})</h2>
+          <button class="btn btn-primary btn-sm" data-modal-open="addSkillModal">+ Add Skill</button>
+        </div>
+
+        <div class="skills-manager-grid">
+          {% for s in user_skills %}
+            <div class="skill-chip">
+              <div>
+                <b style="font-size: 0.9rem; color: var(--slate-800); display: block;">{{ s.skill_name }}</b>
+                <div class="skill-stars">
+                  {% for i in range(5) %}
+                    <span>{% if i < s.proficiency_level %}★{% else %}☆{% endif %}</span>
+                  {% endfor %}
+                  <span style="font-size: 0.75rem; color: var(--slate-500); margin-left: 4px;">({{ s.proficiency_level }}/5)</span>
+                </div>
+              </div>
+              <button class="delete-skill-btn" data-skill="{{ s.skill_name }}" style="background:none; border:none; color: var(--slate-400); cursor:pointer; font-size:1.1rem;" title="Remove Skill">×</button>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Verified Badges Showcase -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Earned Skill Badges ({{ badges|length }})</h2>
+          <a href="{{ url_for('learning') }}" style="font-size: 0.85rem; font-weight: 600;">Earn More ↗</a>
+        </div>
+
+        {% if badges %}
+          <div class="badges-gallery">
+            {% for b in badges %}
+              <div class="badge-item" title="{{ b.description }}">
+                <div class="badge-icon-circle">🎖️</div>
+                <div class="badge-name">{{ b.badge_name }}</div>
+                <small style="font-size: 0.7rem; color: var(--slate-500);">Earned</small>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="text-muted" style="font-size: 0.85rem;">Take skill quizzes to earn verified competency badges.</p>
+        {% endif %}
+      </div>
+
+      <!-- Top Recommended Internships Preview -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Top Internship Matches</h2>
+          <a href="{{ url_for('internships_page') }}" style="font-size: 0.85rem; font-weight: 600;">View All ↗</a>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 1rem;">
+          {% for job in recommended %}
+            <div style="background: var(--slate-50); border: 1px solid var(--slate-200); border-radius: var(--radius-md); padding: 1rem;">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.25rem;">
+                <b style="font-size: 0.95rem; color: var(--slate-900);">{{ job.title }}</b>
+                <span class="match-pill {% if job.match_score >= 70 %}match-high{% elif job.match_score >= 40 %}match-med{% else %}match-low{% endif %}">
+                  {{ job.match_score }}% Match
+                </span>
+              </div>
+              <div style="font-size: 0.8rem; color: var(--slate-600); margin-bottom: 0.5rem;">
+                {{ job.company }} · {{ job.mode }} · {{ job.stipend }}
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--slate-200); padding-top: 0.5rem;">
+                <span style="font-size: 0.75rem; color: var(--slate-500);">Deadline: {{ job.deadline }}</span>
+                <a href="{{ url_for('internships_page') }}" class="btn btn-outline-primary btn-sm" style="padding: 0.25rem 0.65rem;">View Opportunity ↗</a>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<!-- Edit Profile Modal -->
+<div class="modal-overlay" id="editProfileModal">
+  <div class="modal-content">
+    <button class="modal-close" onclick="closeModal('editProfileModal')">×</button>
+    <h3 style="font-size: 1.25rem; color: var(--slate-900); margin-bottom: 1.25rem;">Edit Student Profile</h3>
+
+    <form id="editProfileForm">
+      <div class="form-group">
+        <label class="form-label" for="profName">Full Name *</label>
+        <input type="text" id="profName" name="name" class="form-control" value="{{ user.name }}" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="profHeadline">Headline</label>
+        <input type="text" id="profHeadline" name="headline" class="form-control" value="{{ user.headline or '' }}" placeholder="e.g. Aspiring Full-Stack Software Engineer">
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <div class="form-group">
+          <label class="form-label" for="profEdu">Degree / Major</label>
+          <input type="text" id="profEdu" name="education" class="form-control" value="{{ user.education or '' }}">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="profInst">Institution</label>
+          <input type="text" id="profInst" name="institution" class="form-control" value="{{ user.institution or '' }}">
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <div class="form-group">
+          <label class="form-label" for="profGrad">Graduation Year</label>
+          <input type="text" id="profGrad" name="graduation_year" class="form-control" value="{{ user.graduation_year or '' }}">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="profRole">Target Career Role</label>
+          <select id="profRole" name="target_role" class="form-control">
+            {% for r in all_roles %}
+              <option value="{{ r.title }}" {% if r.title == user.target_role %}selected{% endif %}>{{ r.title }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <div class="form-group">
+          <label class="form-label" for="profGithub">GitHub Profile URL</label>
+          <input type="url" id="profGithub" name="github_url" class="form-control" value="{{ user.github_url or '' }}" placeholder="https://github.com/username">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="profLinkedin">LinkedIn Profile URL</label>
+          <input type="url" id="profLinkedin" name="linkedin_url" class="form-control" value="{{ user.linkedin_url or '' }}" placeholder="https://linkedin.com/in/username">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="profBio">Bio / Career Objective</label>
+        <textarea id="profBio" name="bio" class="form-control" rows="3">{{ user.bio or '' }}</textarea>
+      </div>
+
+      <button type="submit" class="btn btn-primary" style="width: 100%;">Save Changes</button>
+    </form>
+  </div>
+</div>
+
+<!-- Add Skill Modal -->
+<div class="modal-overlay" id="addSkillModal">
+  <div class="modal-content">
+    <button class="modal-close" onclick="closeModal('addSkillModal')">×</button>
+    <h3 style="font-size: 1.25rem; color: var(--slate-900); margin-bottom: 1.25rem;">Add Technical Skill</h3>
+
+    <form id="addSkillForm">
+      <div class="form-group">
+        <label class="form-label" for="skillNameInput">Skill Name</label>
+        <input type="text" id="skillNameInput" class="form-control" placeholder="e.g. React, SQL, Python, Docker" required>
+        <small style="color: var(--slate-500); font-size: 0.8rem; margin-top: 0.25rem; display: block;">
+          Tip: You can add standard role skills or any specific technology.
+        </small>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="skillLevelSelect">Proficiency Level</label>
+        <select id="skillLevelSelect" class="form-control">
+          <option value="1">1 - Beginner (Learning basics)</option>
+          <option value="2">2 - Elementary (Can write basic scripts/syntax)</option>
+          <option value="3" selected>3 - Intermediate (Built small projects)</option>
+          <option value="4">4 - Advanced (Solid problem solving)</option>
+          <option value="5">5 - Expert (Production level mastery)</option>
+        </select>
+      </div>
+
+      <button type="submit" class="btn btn-primary" style="width: 100%;">Add to Profile</button>
+    </form>
+  </div>
+</div>
+
+<!-- Add Project Modal -->
+<div class="modal-overlay" id="addProjectModal">
+  <div class="modal-content">
+    <button class="modal-close" onclick="closeModal('addProjectModal')">×</button>
+    <h3 style="font-size: 1.25rem; color: var(--slate-900); margin-bottom: 1.25rem;">Add Showcase Project</h3>
+
+    <form id="addProjectForm">
+      <div class="form-group">
+        <label class="form-label" for="projTitle">Project Title *</label>
+        <input type="text" id="projTitle" name="title" class="form-control" placeholder="e.g. Distributed Task Queue" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="projDesc">Description *</label>
+        <textarea id="projDesc" name="description" class="form-control" rows="3" placeholder="Briefly describe what problem it solves, features, and architecture…" required></textarea>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="projStack">Tech Stack (Comma Separated) *</label>
+        <input type="text" id="projStack" name="tech_stack" class="form-control" placeholder="Python, Flask, SQLite, Redis" required>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <div class="form-group">
+          <label class="form-label" for="projRepo">GitHub Repository URL</label>
+          <input type="url" id="projRepo" name="repo_url" class="form-control" placeholder="https://github.com/…">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="projLive">Live Demo URL</label>
+          <input type="url" id="projLive" name="live_url" class="form-control" placeholder="https://demo.app.com">
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary" style="width: 100%;">Add Project to Portfolio</button>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

@@ -1,1 +1,396 @@
+{% extends "base.html" %}
 
+{% block title %}SkillBridge | Smart Internship & Skill Mapping Platform{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section style="background: linear-gradient(180deg, #f0fdf4 0%, #ffffff 100%); padding: 4.5rem 0 3.5rem; border-bottom: 1px solid var(--slate-200);">
+  <div class="container">
+    <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 3.5rem; align-items: center;">
+      <div>
+        <div style="display: inline-flex; align-items: center; gap: 0.5rem; background: var(--primary-100); color: var(--primary-900); padding: 0.35rem 0.85rem; border-radius: var(--radius-full); font-size: 0.8rem; font-weight: 700; margin-bottom: 1.25rem;">
+          <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--primary-600); animation: pulseSlow 2s infinite;"></span>
+          CAREER READINESS ENGINE FOR COLLEGE STUDENTS
+        </div>
+        <h1 style="font-size: 2.85rem; line-height: 1.15; font-weight: 800; color: var(--slate-900); margin-bottom: 1.25rem; letter-spacing: -0.02em;">
+          Know what you're missing.<br>
+          <span style="background: linear-gradient(135deg, var(--primary-700), var(--emerald-accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+            Build what matters.
+          </span>
+        </h1>
+        <p style="font-size: 1.15rem; color: var(--slate-600); line-height: 1.6; margin-bottom: 2rem; max-width: 540px;">
+          Identify your exact technical skill gaps for top tech careers, follow tailored learning pathways, and discover internships that match your true capabilities.
+        </p>
+
+        <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; margin-bottom: 2.5rem;">
+          <a href="#analyzer" class="btn btn-primary btn-lg">
+            Analyze My Skills Free <span>→</span>
+          </a>
+          <a href="{{ url_for('register') }}" class="btn btn-secondary btn-lg">
+            Create Student Profile
+          </a>
+        </div>
+
+        <!-- Social Proof Stats -->
+        <div style="display: flex; gap: 2rem; border-top: 1px solid var(--slate-200); padding-top: 1.5rem;">
+          <div>
+            <div style="font-size: 1.5rem; font-weight: 800; color: var(--slate-900);">{{ stats.roles_count }}+</div>
+            <div style="font-size: 0.8rem; font-weight: 600; color: var(--slate-500); text-transform: uppercase;">Standard Roles</div>
+          </div>
+          <div>
+            <div style="font-size: 1.5rem; font-weight: 800; color: var(--slate-900);">{{ stats.internships_count }}+</div>
+            <div style="font-size: 0.8rem; font-weight: 600; color: var(--slate-500); text-transform: uppercase;">Sample Internships</div>
+          </div>
+          <div>
+            <div style="font-size: 1.5rem; font-weight: 800; color: var(--slate-900);">{{ stats.resources_count }}+</div>
+            <div style="font-size: 0.8rem; font-weight: 600; color: var(--slate-500); text-transform: uppercase;">Curated Labs</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hero Visual Card Preview -->
+      <div style="position: relative;">
+        <div class="card" style="box-shadow: var(--shadow-xl); border: 1px solid var(--primary-200); padding: 1.75rem; background: white;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+            <div>
+              <span style="font-size: 0.75rem; font-weight: 700; color: var(--primary-700); text-transform: uppercase;">Career Readiness Snapshot</span>
+              <h3 style="font-size: 1.15rem; color: var(--slate-900);">Full-Stack Developer</h3>
+            </div>
+            <span class="badge badge-green">Live Engine</span>
+          </div>
+
+          <div style="display: flex; align-items: center; justify-content: space-around; background: var(--primary-50); border-radius: var(--radius-md); padding: 1.25rem; margin-bottom: 1.25rem;">
+            <div style="text-align: center;">
+              <div style="font-size: 2.25rem; font-weight: 800; color: var(--primary-800); line-height: 1;">78%</div>
+              <small style="font-size: 0.75rem; font-weight: 600; color: var(--primary-700);">Weighted Score</small>
+            </div>
+            <div style="height: 40px; width: 1px; background: var(--primary-200);"></div>
+            <div style="text-align: left;">
+              <div style="font-size: 0.85rem; font-weight: 700; color: var(--slate-800);">Strengthen Next:</div>
+              <div style="font-size: 0.85rem; color: #166534; font-weight: 600;">• Backend REST APIs</div>
+              <div style="font-size: 0.85rem; color: #166534; font-weight: 600;">• SQL Window Queries</div>
+            </div>
+          </div>
+
+          <div style="margin-bottom: 1rem;">
+            <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.35rem;">
+              <span>Target Benchmark Match</span>
+              <b>4 of 6 skills met</b>
+            </div>
+            <div class="skill-bar-track">
+              <div class="skill-bar-fill" style="width: 78%; background: linear-gradient(90deg, var(--primary-500), var(--primary-600));"></div>
+            </div>
+          </div>
+
+          <div style="background: var(--slate-50); border: 1px solid var(--slate-200); border-radius: var(--radius-md); padding: 0.85rem; font-size: 0.85rem;">
+            <b>🎯 Top Recommended Opportunity:</b>
+            <div style="color: var(--slate-600); margin-top: 0.2rem;">Junior Web Developer Intern @ TechWave Labs (83% Skill Match)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- How It Works Section -->
+<section style="padding: 4.5rem 0;" id="how-it-works">
+  <div class="container">
+    <div style="text-align: center; max-width: 650px; margin: 0 auto 3rem;">
+      <span class="badge badge-green" style="margin-bottom: 0.75rem;">Structured Workflow</span>
+      <h2 style="font-size: 2.15rem; font-weight: 800; color: var(--slate-900); letter-spacing: -0.01em;">
+        From "What should I learn?" to "I am ready to apply."
+      </h2>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem;">
+      <div class="card" style="padding: 2rem;">
+        <div class="badge-icon-circle" style="margin-bottom: 1.25rem;">01</div>
+        <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--slate-900); margin-bottom: 0.5rem;">Pick Your Target Role</h3>
+        <p style="color: var(--slate-600); font-size: 0.925rem;">
+          Select from Full-Stack, Data Analytics, AI/ML, Cybersecurity, UI/UX, and Cloud Engineering benchmarks designed against industry expectations.
+        </p>
+      </div>
+
+      <div class="card" style="padding: 2rem;">
+        <div class="badge-icon-circle" style="margin-bottom: 1.25rem;">02</div>
+        <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--slate-900); margin-bottom: 0.5rem;">Analyze Skill Gaps</h3>
+        <p style="color: var(--slate-600); font-size: 0.925rem;">
+          Our mathematical model calculates weighted readiness scores and pinpoints your critical missing skills vs. target industry levels.
+        </p>
+      </div>
+
+      <div class="card" style="padding: 2rem;">
+        <div class="badge-icon-circle" style="margin-bottom: 1.25rem;">03</div>
+        <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--slate-900); margin-bottom: 0.5rem;">Follow Roadmap & Apply</h3>
+        <p style="color: var(--slate-600); font-size: 0.925rem;">
+          Engage with curated free learning labs, test your knowledge in skill quizzes, and discover ranked internship opportunities.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Interactive Live Skill Analyzer -->
+<section style="background: white; padding: 4.5rem 0; border-top: 1px solid var(--slate-200); border-bottom: 1px solid var(--slate-200);" id="analyzer">
+  <div class="container">
+    <div style="margin-bottom: 2.5rem;">
+      <span class="badge badge-green" style="margin-bottom: 0.5rem;">Interactive Simulator</span>
+      <h2 style="font-size: 2.15rem; font-weight: 800; color: var(--slate-900);">
+        Test Your Readiness Right Now
+      </h2>
+      <p style="color: var(--slate-600); font-size: 1rem;">
+        Choose a target role and rate your current confidence on each skill from 0 (Not learned) to 5 (Confident).
+      </p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem; align-items: flex-start;">
+      <!-- Form Panel -->
+      <form id="publicSkillForm" class="card" style="padding: 2rem; border-color: var(--primary-200);">
+        <div class="form-group">
+          <label class="form-label" for="publicRoleSelect">Select Desired Job Role</label>
+          <select id="publicRoleSelect" class="form-control" style="font-weight: 700; color: var(--primary-900);">
+            {% for r in roles %}
+              <option value="{{ r.title }}">{{ r.title }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin: 1.5rem 0 0.85rem;">
+          <label class="form-label" style="margin-bottom: 0;">Rate Your Current Skills</label>
+          <span class="badge badge-gray" id="publicSkillCount">6 role skills</span>
+        </div>
+
+        <div id="publicSkillInputs" style="display: flex; flex-direction: column; gap: 0.85rem; max-height: 380px; overflow-y: auto; padding-right: 0.5rem;">
+          <!-- Dynamically generated inputs -->
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1.5rem; padding: 0.85rem;">
+          Calculate My Skill Gap & Matches <span>→</span>
+        </button>
+      </form>
+
+      <!-- Results Panel -->
+      <div id="publicResultsPanel" class="card" style="padding: 2rem; min-height: 480px;">
+        <div style="text-align: center; padding: 3rem 1rem; color: var(--slate-500);">
+          <div style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.7;">📊</div>
+          <h3 style="font-size: 1.25rem; color: var(--slate-800); margin-bottom: 0.5rem;">Your Skill Map Results Await</h3>
+          <p style="font-size: 0.925rem; max-width: 360px; margin: 0 auto;">
+            Adjust the sliders on the left and click "Calculate My Skill Gap" to inspect your readiness score and personalized roadmap.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Sample Internships Grid Preview -->
+<section style="padding: 4.5rem 0;" id="opportunities">
+  <div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2.5rem; flex-wrap: wrap; gap: 1rem;">
+      <div>
+        <span class="badge badge-green" style="margin-bottom: 0.5rem;">Opportunity Showcase</span>
+        <h2 style="font-size: 2.15rem; font-weight: 800; color: var(--slate-900);">
+          Explore Sample Internships
+        </h2>
+        <p style="color: var(--slate-600); font-size: 0.95rem;">
+          Transparently curated demo listings demonstrating our skills-based match scoring algorithm.
+        </p>
+      </div>
+      <a href="{{ url_for('internships_page') }}" class="btn btn-secondary">
+        Browse All Internships & Tracker ↗
+      </a>
+    </div>
+
+    <div class="internship-grid">
+      {% for job in internships %}
+        <div class="internship-card">
+          <div class="internship-top">
+            <div>
+              <h3 style="font-size: 1.15rem; color: var(--slate-900); font-weight: 700; margin-bottom: 0.2rem;">{{ job.title }}</h3>
+              <p style="color: var(--slate-600); font-size: 0.9rem; font-weight: 600;">{{ job.company }}</p>
+            </div>
+            <div class="company-logo">{{ job.company[:1] }}</div>
+          </div>
+
+          <div class="internship-chips">
+            <span class="internship-chip">📍 {{ job.location }}</span>
+            <span class="internship-chip">💼 {{ job.mode }}</span>
+            <span class="internship-chip">💰 {{ job.stipend }}</span>
+            <span class="internship-chip">⏳ {{ job.duration }}</span>
+          </div>
+
+          <p style="font-size: 0.875rem; color: var(--slate-600); line-height: 1.5;">
+            {{ job.description }}
+          </p>
+
+          <div style="font-size: 0.8rem; color: var(--slate-500);">
+            <b>Required Skills:</b> {{ job.required_skills }}
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--slate-100); padding-top: 0.85rem;">
+            <span style="font-size: 0.75rem; color: var(--slate-500); font-weight: 600;">Sample Listing</span>
+            <a href="{{ url_for('login') }}" class="btn btn-outline-primary btn-sm">
+              Apply & Track ↗
+            </a>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- Final Call to Action -->
+<section style="background: linear-gradient(135deg, #064e3b, #0f766e); color: white; padding: 4.5rem 0; text-align: center;">
+  <div class="container container-narrow">
+    <h2 style="font-size: 2.25rem; font-weight: 800; margin-bottom: 1rem;">
+      Ready to map your skills to your dream career?
+    </h2>
+    <p style="font-size: 1.1rem; color: var(--primary-100); margin-bottom: 2rem;">
+      Create your free student profile today, benchmark against industry standards, and track every application in one place.
+    </p>
+    <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg" style="background: white; color: var(--primary-900); box-shadow: 0 10px 20px rgba(0,0,0,0.2);">
+      Get Started with SkillBridge ↗
+    </a>
+  </div>
+</section>
+
+<script>
+// Role skills dictionary for public simulator
+const publicRoleSkills = {
+  "Full-Stack Developer": [
+    ["HTML & CSS", 4], ["JavaScript", 5], ["React", 4], ["SQL", 3], ["Backend APIs", 4], ["Git & GitHub", 3]
+  ],
+  "Data Analyst": [
+    ["SQL", 5], ["Excel", 4], ["Python", 4], ["Data Visualization", 4], ["Pandas", 4], ["Statistics", 3]
+  ],
+  "AI/ML Engineer": [
+    ["Python", 5], ["Machine Learning", 4], ["Statistics", 4], ["Data Structures", 3], ["Pandas & NumPy", 4]
+  ],
+  "Cybersecurity Analyst": [
+    ["Networking", 4], ["Linux", 4], ["Security Fundamentals", 5], ["Log Analysis", 3], ["Vulnerability Assessment", 3]
+  ],
+  "UI/UX Designer": [
+    ["Figma", 5], ["Wireframing", 4], ["Prototyping", 4], ["User Research", 4], ["Visual Design", 4]
+  ],
+  "Cloud & DevOps Engineer": [
+    ["Linux", 4], ["Docker & Containers", 4], ["CI/CD Pipelines", 3], ["Git & GitHub", 4], ["AWS / Azure Basics", 3]
+  ]
+};
+
+const publicRoleSelect = document.getElementById("publicRoleSelect");
+const publicSkillInputs = document.getElementById("publicSkillInputs");
+const publicSkillForm = document.getElementById("publicSkillForm");
+const publicResultsPanel = document.getElementById("publicResultsPanel");
+
+function renderPublicSkillInputs() {
+  const role = publicRoleSelect.value;
+  const skills = publicRoleSkills[role] || publicRoleSkills["Full-Stack Developer"];
+  
+  publicSkillInputs.innerHTML = skills.map(([name, target]) => `
+    <div style="background: var(--slate-50); border: 1px solid var(--slate-200); border-radius: var(--radius-md); padding: 0.75rem 1rem; display: flex; justify-content: space-between; align-items: center;">
+      <div>
+        <b style="font-size: 0.9rem; color: var(--slate-800);">${name}</b>
+        <div style="font-size: 0.75rem; color: var(--slate-500);">Industry target: ${target}/5</div>
+      </div>
+      <select data-public-skill="${name}" class="form-control" style="width: auto; padding: 0.35rem 0.65rem; font-size: 0.85rem;">
+        <option value="0">0 - Not learned</option>
+        <option value="1">1 - Beginner</option>
+        <option value="2">2 - Basic</option>
+        <option value="3" selected>3 - Intermediate</option>
+        <option value="4">4 - Advanced</option>
+        <option value="5">5 - Confident</option>
+      </select>
+    </div>
+  `).join("");
+}
+
+publicRoleSelect.addEventListener("change", renderPublicSkillInputs);
+renderPublicSkillInputs();
+
+publicSkillForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const role = publicRoleSelect.value;
+  const selects = publicSkillInputs.querySelectorAll("select[data-public-skill]");
+  const skills = Array.from(selects).map(s => ({
+    name: s.getAttribute("data-public-skill"),
+    level: Number(s.value)
+  }));
+
+  const submitBtn = publicSkillForm.querySelector("button[type='submit']");
+  submitBtn.disabled = true;
+  submitBtn.innerText = "Analyzing Skill Gap…";
+
+  try {
+    const res = await fetch("/api/analyze", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ role, skills })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Analysis failed.");
+
+    renderPublicResults(data);
+  } catch (err) {
+    publicResultsPanel.innerHTML = `
+      <div class="alert alert-danger">${err.message}</div>
+    `;
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.innerText = "Calculate My Skill Gap & Matches →";
+  }
+});
+
+function renderPublicResults(data) {
+  publicResultsPanel.innerHTML = `
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--slate-100);">
+      <div>
+        <span class="badge badge-green" style="font-size:0.75rem;">Analysis Complete</span>
+        <h3 style="font-size: 1.35rem; color: var(--slate-900);">${data.role}</h3>
+      </div>
+      <div style="text-align: right;">
+        <div style="font-size: 2rem; font-weight: 800; color: var(--primary-800); line-height: 1;">${data.readiness}%</div>
+        <small style="font-size: 0.75rem; color: var(--slate-500); font-weight: 600;">Weighted Readiness</small>
+      </div>
+    </div>
+
+    <div style="margin-bottom: 1.25rem;">
+      <h4 style="font-size: 0.85rem; font-weight: 700; color: var(--slate-700); margin-bottom: 0.5rem;">✓ Target Level Met</h4>
+      <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
+        ${data.matched.length ? data.matched.map(m => `<span class="badge badge-green">${m.name}</span>`).join("") : '<span class="text-muted" style="font-size:0.85rem;">None at target level yet</span>'}
+      </div>
+    </div>
+
+    <div style="margin-bottom: 1.25rem;">
+      <h4 style="font-size: 0.85rem; font-weight: 700; color: var(--slate-700); margin-bottom: 0.5rem;">↗ Needs Strengthening</h4>
+      <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
+        ${data.improve.length ? data.improve.map(m => `<span class="badge badge-amber">${m.name} (${m.current}/${m.required})</span>`).join("") : '<span class="text-muted" style="font-size:0.85rem;">No partial gaps</span>'}
+      </div>
+    </div>
+
+    <div style="margin-bottom: 1.5rem;">
+      <h4 style="font-size: 0.85rem; font-weight: 700; color: var(--slate-700); margin-bottom: 0.5rem;">＋ Critical Missing Skills</h4>
+      <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
+        ${data.missing.length ? data.missing.map(m => `<span class="badge badge-red">${m.name}</span>`).join("") : '<span class="text-muted" style="font-size:0.85rem;">Zero missing skills!</span>'}
+      </div>
+    </div>
+
+    <div style="border-top: 1px solid var(--slate-100); padding-top: 1.25rem;">
+      <h4 style="font-size: 0.9rem; font-weight: 700; color: var(--slate-900); margin-bottom: 0.75rem;">Recommended Learning Milestones:</h4>
+      <div style="display: flex; flex-direction: column; gap: 0.6rem;">
+        ${data.roadmap.slice(0, 3).map(r => `
+          <div style="background: var(--slate-50); border: 1px solid var(--slate-200); border-radius: var(--radius-md); padding: 0.65rem 0.85rem; font-size: 0.85rem;">
+            <b>${r.skill}</b>: <a href="${r.url}" target="_blank" style="color: var(--primary-700); font-weight: 600;">${r.resource_title} ↗</a> (${r.provider})
+          </div>
+        `).join("")}
+      </div>
+    </div>
+
+    <div style="margin-top: 1.5rem; text-align: center;">
+      <a href="{{ url_for('register') }}" class="btn btn-primary" style="width: 100%;">
+        Save Skill Profile & Track Internships ↗
+      </a>
+    </div>
+  `;
+}
+</script>
+{% endblock %}
